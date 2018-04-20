@@ -70,13 +70,17 @@
     [(call sym plst)(make-call sym  (map (varreplacerule org new) plst))]
     [(virtualcall sym plst)(make-virtualcall sym  (map (varreplacerule org new) plst))]
     [t t]))
+
 (define(varreplacerules table)
    (match-lambda
-    [(variable a)(hash-ref table 'a (lambda()(make-variable a)))]
+    [(variable a)(hash-ref table a (lambda()(make-variable a)))]
     [(operation sym plst) (make-operation  sym (map (varreplacerules  table) plst))]
     [(call sym plst)(make-call sym  (map (varreplacerules  table) plst))]
     [(virtualcall sym plst)(make-virtualcall sym  (map (varreplacerules  table) plst))]
     [t t]))
+(define((diffvarreplacerules table)df)
+  (match-define(diffequation y x expr) df)
+  (make-diffequation y x ((varreplacerules table) expr)))
 
 
 (module+ test
@@ -94,7 +98,7 @@
                 (#s(operation / (#s(operation * (#s(variable drt1) #s(variable Fm))) #s(variable m))) #s(variable vx)))
              #s(variable v))))))
   
-  ((varreplacerule 'x (make-variable 'h))
+  ((varreplacerules '#hash((v . #s(virtualcall v (x t y vx vy m k u))) (r . #s(virtualcall r (x t y vx vy m k u)))))
 #s(operation
         +
         (#s(operation

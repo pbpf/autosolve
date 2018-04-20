@@ -17,22 +17,24 @@
      (make-func-definition sym odevars expr)))
 
 
-(define(solve-def defvars odevars defid defexpr)
+(define(solve-def rulestable defvars odevars  defid defexpr)
   (define containvar (reslove-variable-list defexpr))
   (define mixvar (set-intersect containvar defvars))
   (if(not(set-empty? mixvar))
      (error ':= "using variable ~a before it's definition,auto solve algebra equation not support yet"
             (string-join (set->list mixvar) ","))
-     (if(set-empty? (set-intersect containvar odevars))
-        (make-definition defid defexpr);如果不显含ode var 则保持不变否则变为 虚拟函数
-         (make-virtual-func-definition defid odevars defexpr))));可以不考虑 defexpr 中的二级变量
+     (if(set-empty? (set-intersect containvar (set-union (hash-keys rulestable) odevars)))
+        (values (make-definition defid defexpr)
+                rulestable);如果不显含ode var,也不含有之前定义的变量 则保持不变否则变为 虚拟函数
+        (values(make-virtual-func-definition defid odevars ((varreplacerules rulestable)defexpr))
+               (hash-set rulestable defid  (make-virtualcall defid odevars))))));可以不考虑 defexpr 中的二级变量
 ;--------------------------------------------------------
 (define(pass-item non-difflst nodiffvars odevars)
-  (let loop([nodiffvarst nodiffvars][rest non-difflst][rt '()])
-    (if(null? non-difflst)
+  (let loop([nodiffvarst nodiffvars][rest non-difflst][rt '()][rtb (hash)])
+    (if(null? rest)
        (reverse rt)
-       (let([a (solve-def nodiffvarst odevars (definition-id (car rest))(definition-value (car rest)))])
-          (loop (cdr nodiffvarst) (cdr rest) (cons a rt))))))
+       (let-values([(a tb)(solve-def rtb nodiffvarst odevars (definition-id (car rest))(definition-value (car rest)))])
+          (loop (cdr nodiffvarst) (cdr rest) (cons a rt) tb)))))
 
 ;;;统计虚变量
 (define(resolve-virtualvars lst)
@@ -42,14 +44,18 @@
 
 (define(pass lst)
   (define-values(defs diffeqs)(divide lst))
+  (define ode?(ode-check? diffeqs))
+  (when (not ode?)
+    (error 'not-support "this is not a ode"))
+  (define selfvar (ode-selfvar diffeqs))
   ;
-  (define odevars (get-diffvars diffeqs))
+  (define odevars (cons selfvar (get-diffvars diffeqs)))
   (define defvars (get-nodiffvars defs))
   (define passed1 (pass-item defs defvars  odevars))
   (define virtualvars (resolve-virtualvars passed1))
   (define rule-table (for/hash ([key (in-list virtualvars)])
                        (values key (make-virtualcall key odevars))))
-  (values odevars virtualvars passed1 (map (varreplacerules rule-table)diffeqs))
+  (values rule-table odevars virtualvars passed1 (map (diffvarreplacerules rule-table) diffeqs))
   )
   ;
   ;midvar to 

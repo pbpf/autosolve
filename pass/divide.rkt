@@ -3,6 +3,8 @@
 (provide divide
          get-diffvars
          get-nodiffvars
+         ode-check?
+         ode-selfvar
          )
 ;将微分和非微分分开
 ;after  omitarea solved
@@ -18,10 +20,18 @@
                notdiff)
        (values diff
                (cons i notdiff)))))
-
+(define(ode-check? lst)
+  (if(null? lst)
+     #f
+     (let([key (diffequation-x (car lst))])
+     (andmap (lambda(x)(eq? (diffequation-x x)  key))
+             (cdr lst)))))
+(define(ode-selfvar lst)
+  (diffequation-x (car lst)))
 (define(get-diffvar df)
   (list (diffequation-y df)
-        (diffequation-x df)))
+       ; (diffequation-x df) for ode
+        ))
 (define(get-defcar df)
   (definition-id df))
 ; lst is all diff
