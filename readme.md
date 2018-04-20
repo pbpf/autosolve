@@ -1,8 +1,8 @@
-auto solve ode
+#auto solve ode
 
-自动生成常微分方程求解代码 
+**自动生成常微分方程求解代码 **
 
-to do
+## Todo list
 
 - [x] 完成基本pass
 - [x] RT4标准型
