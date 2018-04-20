@@ -1,0 +1,11 @@
+#lang racket
+(provide (all-defined-out))
+(struct varsub (varname step)#:prefab)
+(struct vecsub (varname step)#:prefab)
+(struct assignment(leftvar rightexpr)#:prefab)
+(struct funcall(f explist)#:prefab)
+(struct exprforname(expr) #:prefab)
+(struct divide (left right)#:prefab)
+(struct add (left right)#:prefab)
+(struct addmany (lst)#:prefab)
+(struct times (left right)#:prefab)
