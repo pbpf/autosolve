@@ -1,5 +1,5 @@
 #lang racket
-;(require racket/generic)
+(require "../ast.rkt")
 (provide (all-defined-out)
          (struct-out diffequation))
 
@@ -77,11 +77,35 @@
     [(operation sym plst) (make-operation  sym (map (varreplacerules  table) plst))]
     [(call sym plst)(make-call sym  (map (varreplacerules  table) plst))]
     [(virtualcall sym plst)(make-virtualcall sym  (map (varreplacerules  table) plst))]
-    [t t]))
+    [t (if(symbol? t)(hash-ref table t (lambda() t)) t)]))
+;;-------------核心函数
 (define((diffvarreplacerules table)df)
   (match-define(diffequation y x expr) df)
   (make-diffequation y x ((varreplacerules table) expr)))
+;-------------------------
+(define(make-table1 a b)
+  (for/hash ([i (in-list a)]
+             [j (in-list b)])
+    (values i j)))
 
+(define(vfundefreplace sublst vfundefexpr)
+  (vcallassignment (exprforname (make-virtualcall (virtual-func-definition-id vfundefexpr) sublst))
+                  ((varreplacerules2 (make-table1 (virtual-func-definition-formlist vfundefexpr) sublst))
+                  (virtual-func-definition-value vfundefexpr))))
+(define(varreplacerules2 table)
+   (match-lambda
+    [(variable a)(list (hash-ref table a (lambda()(make-variable a))) '())]
+    [(operation sym plst)(define data (map (varreplacerules2  table) plst))
+                         (list (make-operation  sym (map car data))
+                               (apply append (map cadr data)))]
+    [(call sym plst)(define data (map (varreplacerules2  table) plst))
+                    (list (make-call sym  (map car data))
+                          (apply append( map cadr data)))]
+    [(virtualcall sym plst)(define rule (map (varreplacerules  table) plst))
+                           (list (exprforname(make-virtualcall sym  rule))
+                                 (list (make-virtualcall sym  rule)))]
+    [t (list (if(symbol? t)(hash-ref table t (lambda() t)) t)
+             '())]))
 
 (module+ test
 
@@ -111,5 +135,13 @@
                 *
                 (#s(operation / (#s(operation * (#s(variable drt1) #s(variable Fm))) #s(variable m))) #s(variable vx)))
              #s(variable v))))))
+  (define(replace-callitem replace-table eq)
+ ; (displayln replace-table)
+ ; (displayln eq)
+  ((varreplacerules2 replace-table) eq))
+(replace-callitem #hash((vy . #s(varsub vy 0)) (x . #s(varsub x 0)) (t . #s(varsub t 0)) (y . #s(varsub y 0)) (vx . #s(varsub vx 0)))
+#s(operation * (#s(operation / (#s(operation - (#s(variable mu))) #s(operation expt (#s(virtualcall r (t y x vx vy)) #s(constant 3))))) #s(variable x))))
+
   
   )
+

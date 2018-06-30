@@ -36,12 +36,23 @@
        (let-values([(a tb)(solve-def rtb nodiffvarst odevars (definition-id (car rest))(definition-value (car rest)))])
           (loop (cdr nodiffvarst) (cdr rest) (cons a rt) tb)))))
 
+(define(sorteq normalizationeq odevars)
+  (define time (car odevars))
+  (define state (cdr odevars))
+  (define indextb(for/hash ([i (in-list state)]
+                            [j (in-naturals 1)])
+                   (values i j)))
+  (sort normalizationeq < #:key (lambda(t)(hash-ref indextb (diffequation-y t) (lambda(t)0)))))
+
 ;;;统计虚变量
 (define(resolve-virtualvars lst)
   (for/list([i (in-list lst)]
             #:when (virtual-func-definition? i))
     (virtual-func-definition-id i)))
-
+(define(vcalldef->table defs)
+  (for/hash([i (in-list defs)])
+    (values(virtual-func-definition-id i)
+           i)))
 (define(pass lst)
   (define-values(defs diffeqs)(divide lst))
   (define ode?(ode-check? diffeqs))
@@ -55,7 +66,9 @@
   (define virtualvars (resolve-virtualvars passed1))
   (define rule-table (for/hash ([key (in-list virtualvars)])
                        (values key (make-virtualcall key odevars))))
-  (values rule-table odevars virtualvars passed1 (map (diffvarreplacerules rule-table) diffeqs))
+  (values   (vcalldef->table passed1) odevars (sorteq (map (diffvarreplacerules rule-table) diffeqs)
+                                                         odevars
+                                                         ))
   )
   ;
   ;midvar to 

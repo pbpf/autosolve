@@ -192,9 +192,14 @@
 ;(parse-expr  (open-input-string "x:=1;#with(t){y'=x+t;z'=1;}"))
 (module+ test
   (require "../pass/deomit.rkt")
- (pass(parse-expr  (open-input-string "r:=sqrt(x^2+y^2);v:=sqrt(vx^2+vy^2);f(r,v):=r+v;#with(t){x'=vx;y'=vy;vx'=-mu/r^3*x+drt1*Fm/m*vx/v;vy'=-mu/r^3*y+drt1*Fm/m*vy/v;m'=m1*drt2;#with(u){k'=u+k;}}"))
-      
-   )
+; (pass(parse-expr  (open-input-string "r:=sqrt(x^2+y^2);v:=sqrt(vx^2+vy^2);f(r,v):=r+v;#with(t){x'=vx;y'=vy;vx'=-mu/r^3*x+drt1*Fm/m*vx/v;vy'=-mu/r^3*y+drt1*Fm/m*vy/v;m'=m1*drt2;#with(u){k'=u+k;}}"))
+      (pass(parse-expr  (open-input-string "v:=sqrt(vx^2+vy^2);r:=sqrt(x^2+y^2);
+#with(t){ x'=vx;
+          y'=vy;
+          vx'=-mu/r^3*x;
+          vy'=-mu/r^3*y;
+         }")
+   ))
   ;(reslove-variable-list
 ;(parse-expr  (open-input-string "x:=y;#omit(t){y'=x+1;z'=x+y;}"))
 ;(parse-program  (open-input-string "&x[1]=3 4"))
