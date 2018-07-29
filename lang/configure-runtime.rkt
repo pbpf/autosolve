@@ -15,6 +15,9 @@
          (eof-object? (peek-char ip)))
      eof]
     [else 
-  (compile-expr
-   (parameterize ([current-source-name src])
-        (parse-expr ip)))]))
+
+     ;(compile-expr
+   ;(parameterize ([current-source-name src])
+        ;(parse-expr ip)))
+     #'()
+  ]))

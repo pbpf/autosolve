@@ -1,6 +1,8 @@
-#lang racket
+#lang racket/base
  (require "../grammar/ast.rkt"
-          "../ast.rkt")
+          "../ast.rkt"
+          racket/match
+          racket/list)
 (provide pass)
 ;match and replace
 ;匹配的对象主要时状态变量，方程
@@ -76,7 +78,7 @@
 
 (module+ test
 ;--------------------------------
-(require "../autork4.rkt"
+(require "../methods/autork4.rkt"
          )
 (replace3
 (replace2

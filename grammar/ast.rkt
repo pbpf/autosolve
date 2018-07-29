@@ -1,5 +1,7 @@
-#lang racket
-(require "../ast.rkt")
+#lang racket/base
+(require "../ast.rkt"
+         racket/match
+         racket/list)
 (provide (all-defined-out)
          (struct-out diffequation))
 

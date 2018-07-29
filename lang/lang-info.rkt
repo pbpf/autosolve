@@ -4,7 +4,7 @@
   (λ (key default)
     (case key
       [(configure-runtime)
-       '(#(Mathr/lang/configure-runtime configure #f))]
+       '(#(autosolve/lang/configure-runtime configure #f))]
       [else
        default])))
 (provide get-info)

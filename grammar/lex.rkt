@@ -1,5 +1,6 @@
-#lang racket
-(require  parser-tools/lex 
+#lang racket/base
+(require  parser-tools/lex
+          (for-syntax racket/base)
          (prefix-in : parser-tools/lex-sre))
 
 (provide (all-defined-out))
@@ -145,7 +146,7 @@
 
 ;
 (define-lex-abbrevs
-    (binary-operator (:or #\+   #\-   #\*  #\/   "//"   #\%  #\<     #\>    "<="     ">="      "="      "!="  "|"
+    (binary-operator (:or #\+   #\-   #\*  #\/   "//"   #\%  #\<     #\>    "<="     ">="      "="      "!="  "|" "^"
                          "and" "or" "xor" "mod"))
    (misc-operator (:or #\, #\; #\. #\`
                        #\: )))
@@ -173,6 +174,8 @@
      [float (color-token 'constant)]
      [(:: (:or float int-part) (:or #\i "I")) (color-token 'constant)]
      [(:or "#t" "#f")(color-token 'constant)]
+     [(:or "#with" "#extern")(color-token 'hash-colon-keyword)]
+     [#\' (color-token 'hash-colon-keyword)]
      ;; incomplete string literals
      ;; misc
      [(eof) (values lexeme 'eof #f #f #f)]

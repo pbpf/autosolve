@@ -1,17 +1,17 @@
-#lang racket
+#lang racket/base
 (require "ast.rkt"
          "grammar/yacc.rkt"
-         (prefix-in replace: "replace/base.rkt")
-         "autork4.rkt"
          "compiler.rkt"
-        (prefix-in deomit: "pass/deomit.rkt")
-        (prefix-in dediffvar: "pass/deomitdiffvar.rkt"))
+         "methods/main.rkt"
+         "pass/main.rkt"
+        )
 
-(provide codegen)
+(provide codegenrk4)
 
-(define(codegen x)
-  (define-values(tb vars eqs)(dediffvar:pass(deomit:pass (parse-expr  (open-input-string x)))))
-  (define normaleqs (gen-normal* (cdr vars )(car vars) 'h 'k));;;h? k? bug?
+(define((codegen  gen-model) in)
+  (define-values(tb vars eqs)(dediffvar:pass(deomit:pass (parse-expr  in))))
+  (define normaleqs (gen-model (cdr vars )(car vars) 'h 'k));;;h? k? bug?
   ;(replace:pass normaleqs vars eqs tb)
   (compile-statements(replace:pass normaleqs vars eqs tb))
   )
+(define codegenrk4 (codegen rk4:gen-normal*))

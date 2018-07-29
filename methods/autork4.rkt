@@ -1,5 +1,6 @@
-#lang racket
-(require "ast.rkt")
+#lang racket/base
+(require "../ast.rkt"
+         racket/list)
 (provide gen-normal*
          )
 ;自动生成4阶龙格库塔算法 for matlab

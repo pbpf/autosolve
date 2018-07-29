@@ -1,5 +1,6 @@
-#lang racket
+#lang racket/base
 (provide (all-defined-out))
+
 (struct varsub (varname step)#:prefab)
 (struct vecsub (varname step)#:prefab)
 (struct assignment(leftvar rightexpr)#:prefab)
